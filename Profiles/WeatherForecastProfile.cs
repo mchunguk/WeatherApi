@@ -9,7 +9,10 @@ namespace WeatherApi.Profiles
         public WeatherForecastProfile()
         {
             CreateMap<WeatherForecast, WeatherForecastsReadDto>();
-            
+            CreateMap<WeatherForecast, WeatherForecastCreateDto>();
+            CreateMap<WeatherForecastCreateDto,WeatherForecast>();
+            CreateMap<WeatherForecastsUpdateDto,WeatherForecast>();
+            CreateMap<WeatherForecast, WeatherForecastsUpdateDto>();
         }
         
     }

@@ -5,6 +5,12 @@ namespace WeatherApi.Data
 {
     public interface IWeatherRepo
     {
-        public IEnumerable<WeatherForecast> GetAllForecasts();
+        bool SaveChanges();
+        
+        IEnumerable<WeatherForecast> GetAllForecasts();
+        WeatherForecast GetForecastById(int id);
+        void CreateForecast(WeatherForecast forecast);
+        void UpdateForecast(WeatherForecast forecast);
+        void DeleteForecast(WeatherForecast forecast);        
     }
 }
