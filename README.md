@@ -110,3 +110,8 @@ The code makes syncronous calls which is fine for UI based APIs I reckon. For mi
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Commander", Version = "v1" });
             });
         }
+
+## Versioning
+
+* dotnet add package Microsoft.AspNetCore.Mvc.Versioning
+* dotnet add package Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer

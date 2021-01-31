@@ -10,8 +10,10 @@ using WeatherApi.Models;
 namespace WeatherApi.Controllers
 {
     [ApiController]
-    //[Route("[controller]")]
-    [Route("api/forecasts")]
+    // [Route("api/forecasts")]
+    [Route("api/v{version:apiVersion}/forecasts")]
+    [ApiVersion("1.0", Deprecated = true)]
+    [ApiVersion("2.0")]
     public class WeatherForecastsController : ControllerBase
     {
         private readonly ILogger<WeatherForecastsController> _logger;
@@ -27,7 +29,8 @@ namespace WeatherApi.Controllers
 
         //https://tools.ietf.org/html/rfc2616#section-9.3
         //GET api/forecasts
-        [HttpGet]
+        [HttpGet(Name="GetAllForecasts")]
+        [MapToApiVersion("1.0")]
         public ActionResult <IEnumerable<WeatherForecastsReadDto>> GetAllForecasts()
         {
             var forecastItems = _repository.GetAllForecasts();
@@ -38,6 +41,7 @@ namespace WeatherApi.Controllers
         //https://tools.ietf.org/html/rfc2616#section-9.3
         //GET api/forecasts/{id}
         [HttpGet("{id}", Name="GetForecastById")]
+        [MapToApiVersion("1.0")]
         public ActionResult <WeatherForecastsReadDto> GetForecastById(int id)
         {
             var forecastItems = _repository.GetForecastById(id);
@@ -54,6 +58,7 @@ namespace WeatherApi.Controllers
         //https://tools.ietf.org/html/rfc2616#section-9.5
         //POST api/forecasts
         [HttpPost]
+        [MapToApiVersion("1.0")]
         public ActionResult<WeatherForecastsReadDto> CreateForecast(WeatherForecastCreateDto forecastCreateDto)
         {
             var forecastModel = _mapper.Map<WeatherForecast>(forecastCreateDto);
@@ -69,6 +74,7 @@ namespace WeatherApi.Controllers
         //https://tools.ietf.org/html/rfc2616#section-9.6
         //PUT api/forecasts/{id}
         [HttpPut("{id}")]
+        [MapToApiVersion("1.0")]
         public ActionResult UpdateForecast(int id, WeatherForecastsUpdateDto forecastsUpdateDto)
         {
             var forecastModelFromRepo = _repository.GetForecastById(id);
@@ -94,6 +100,7 @@ namespace WeatherApi.Controllers
         //https://tools.ietf.org/html/rfc2068#section-19.6.1.1
         //PATCH api/forecasts/{id}
         [HttpPatch("{id}")]
+        [MapToApiVersion("1.0")]
         public ActionResult PartialForecastUpdate(int id, JsonPatchDocument<WeatherForecastsUpdateDto> patchDoc)
         {
             var forecastModelFromRepo = _repository.GetForecastById(id);
@@ -126,6 +133,7 @@ namespace WeatherApi.Controllers
         //https://tools.ietf.org/html/rfc7231#section-4.3.5
         //DELETE api/forecasts/{id}
         [HttpDelete("{id}")]
+        [MapToApiVersion("1.0")]        
         public ActionResult DeleteCommand(int id)
         {
             var forecastModelFromRepo = _repository.GetForecastById(id);
@@ -140,6 +148,35 @@ namespace WeatherApi.Controllers
             
             return NoContent();
 
+        }
+
+
+        //https://tools.ietf.org/html/rfc2616#section-9.3
+        //GET api/forecasts
+        [HttpGet(Name = nameof(GetAllForecastsV2))]
+        [MapToApiVersion("2.0")]
+        public ActionResult <IEnumerable<WeatherForecastsReadDtoV2>> GetAllForecastsV2()
+        {
+            var forecastItems = _repository.GetAllForecasts();
+
+            return Ok(_mapper.Map<IEnumerable<WeatherForecastsReadDtoV2>>(forecastItems));
+        }
+
+        //https://tools.ietf.org/html/rfc2616#section-9.3
+        //GET api/forecasts/{id}
+        [HttpGet("{id}", Name = nameof(GetForecastByIdV2))]
+        [MapToApiVersion("2.0")]
+        public ActionResult <WeatherForecastsReadDtoV2> GetForecastByIdV2(int id)
+        {
+            var forecastItems = _repository.GetForecastById(id);
+
+            if (forecastItems != null)
+            {
+                return Ok(_mapper.Map<WeatherForecastsReadDtoV2>(forecastItems));
+            }
+
+            return NotFound();
+            
         }
 
 
