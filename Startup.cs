@@ -25,8 +25,11 @@ namespace WeatherApi
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddDbContext<WeatherContext>(opt => opt.UseSqlServer
-                (Configuration.GetConnectionString("CommanderConnection")));
+            // services.AddDbContext<WeatherContext>(opt => opt.UseSqlServer
+            //    (Configuration.GetConnectionString("SqlServerConnection")));
+
+             services.AddDbContext<WeatherContext>(opt => opt.UseSqlite
+                 (Configuration.GetConnectionString("SqlLiteConnection")));
             
             services.AddControllers().AddNewtonsoftJson(s => s.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver());
 
