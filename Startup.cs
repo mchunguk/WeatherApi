@@ -12,6 +12,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Serialization;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using WeatherApi.Data;
+using WeatherApi.Swagger;
 
 namespace WeatherApi
 {
@@ -38,13 +39,14 @@ namespace WeatherApi
 
             services.AddApiVersioning(options => 
                 {
-                    options.AssumeDefaultVersionWhenUnspecified = true;
+                    // Set to false or remove the line if route versioning is being used.
+                    //options.AssumeDefaultVersionWhenUnspecified = true;
                     
                     // two ways of specifying 1.0 as default.
                     //options.DefaultApiVersion =  new ApiVersion(1, 0);
-                    options.DefaultApiVersion = ApiVersion.Default;
+                    //options.DefaultApiVersion = ApiVersion.Default;
 
-                    // where to read the version from header:
+                    // where to read the version [1 TO 3] from header:
                     // Option 1 - Accept: application/json; version=2.0
                     //options.ApiVersionReader = new MediaTypeApiVersionReader("version");
 
@@ -60,12 +62,12 @@ namespace WeatherApi
 
                     // If you do not pick options [1]-[4]; at end of query string append ?api-version=1.0
 
-                    // If you do not want to use attribute decoration on controllers you can do something like this:
+                    // If you do not want to use attribute decoration on controllers you can do something like this
+                    // using fluent API (need more time to figure this out):
                     // options.Conventions.Controller<WeatherForecastsController>()
                     //     .HasDeprecatedApiVersion(new ApiVersion(1,0))
                     //     .HasApiVersion(new ApiVersion(2,0))
                     //     .Action(typeof(WeatherForecastsController).GetMethod(nameof(WeatherForecastsController.GetAllForecastsV2))!).MapToAPiVersion(new ApiVersion(2,0));
-
 
                     // Response header will tell clients which API versions are available.
                     // api-supported-versions:1.0,2.0
@@ -106,22 +108,22 @@ namespace WeatherApi
             {
                 app.UseDeveloperExceptionPage();
                 // app.UseSwagger();
-                // app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WeatherApi v1"));                
+                // app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WeatherApi v1"));
+
+                app.UseSwagger();
+                app.UseSwaggerUI(
+                    options =>
+                    {
+                        // build a swagger endpoint for each discovered API version
+                        foreach (var description in provider.ApiVersionDescriptions)
+                        {
+                            options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
+                        }
+                    });                
             }
 
             app.UseHttpsRedirection();
             app.UseRouting();
-            app.UseSwagger();
-            app.UseSwaggerUI(
-                options =>
-                {
-                    // build a swagger endpoint for each discovered API version
-                    foreach (var description in provider.ApiVersionDescriptions)
-                    {
-                        options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
-                    }
-                });
-
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {

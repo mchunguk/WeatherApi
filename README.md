@@ -115,3 +115,16 @@ The code makes syncronous calls which is fine for UI based APIs I reckon. For mi
 
 * dotnet add package Microsoft.AspNetCore.Mvc.Versioning
 * dotnet add package Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer
+
+
+## SeriLog and Seq
+
+
+### Seq docker image
+https://hub.docker.com/r/datalust/seq
+
+sudo snap install docker
+docker run --name seq -d --restart unless-stopped -e ACCEPT_EULA=Y -p 5341:80 datalust/seq:latest
+
+
+https://localhost:5001/swagger/index.html

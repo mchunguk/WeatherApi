@@ -5,7 +5,7 @@ using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 
-namespace WeatherApi
+namespace WeatherApi.Swagger
 {
     /// <summary>
     /// Configures the Swagger generation options.
