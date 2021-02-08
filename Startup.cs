@@ -2,7 +2,6 @@ using System;
 using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -93,6 +92,7 @@ namespace WeatherApi
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             services.AddScoped<IWeatherRepo, SqlWeatherRepo>();
+            services.AddScoped<IWeatherRepoAsync, SqlWeatherRepoAsync>();
 
             //services.AddControllers();
             // services.AddSwaggerGen(c =>

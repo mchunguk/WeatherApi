@@ -3,6 +3,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 using WeatherApi.Data;
 using WeatherApi.Dto;
 using WeatherApi.Models;
@@ -15,10 +16,10 @@ namespace WeatherApi.Controllers
     public class WeatherForecastsControllerV4 : ControllerBase
     {
         private readonly ILogger<WeatherForecastsController> _logger;
-        private readonly IWeatherRepo _repository;
+        private readonly IWeatherRepoAsync _repository;
         private IMapper _mapper;        
 
-        public WeatherForecastsControllerV4(ILogger<WeatherForecastsController> logger, IWeatherRepo repository, IMapper mapper)
+        public WeatherForecastsControllerV4(ILogger<WeatherForecastsController> logger, IWeatherRepoAsync repository, IMapper mapper)
         {
             _logger = logger;
             _repository = repository;
@@ -36,9 +37,9 @@ namespace WeatherApi.Controllers
         [HttpGet(Name = nameof(GetAllForecasts))]
         [Produces( "application/json" )]
         [ProducesResponseType( typeof( IEnumerable<WeatherForecastsReadDtoV4> ), 200 )]
-        public ActionResult <IEnumerable<WeatherForecastsReadDtoV4>> GetAllForecasts()
+        public async Task<IActionResult> GetAllForecasts()
         {
-            var forecastItems = _repository.GetAllForecasts();
+            var forecastItems = await _repository.GetAllForecastsAsync();
 
             return Ok(_mapper.Map<IEnumerable<WeatherForecastsReadDtoV4>>(forecastItems));
         }
@@ -59,9 +60,9 @@ namespace WeatherApi.Controllers
         [ProducesResponseType( typeof( WeatherForecastsReadDtoV4 ), 200 )]
         [ProducesResponseType( 400 )]
         [ProducesResponseType( 404 )]
-        public ActionResult <WeatherForecastsReadDtoV4> GetForecastById(int id)
+        public async Task<IActionResult> GetForecastById(int id)
         {
-            var forecastItems = _repository.GetForecastById(id);
+            var forecastItems = await _repository.GetForecastByIdAsync(id);
 
             if (forecastItems != null)
             {
@@ -85,12 +86,12 @@ namespace WeatherApi.Controllers
         [HttpPost]
         [ProducesResponseType( typeof( WeatherForecastCreateDto ), 201 )]
         [ProducesResponseType( 400 )]
-        public ActionResult<WeatherForecastsReadDtoV4> CreateForecast(WeatherForecastCreateDto forecastCreateDto)
+        public async Task<IActionResult> CreateForecast(WeatherForecastCreateDto forecastCreateDto)
         {
             var forecastModel = _mapper.Map<WeatherForecast>(forecastCreateDto);
 
-            _repository.CreateForecast(forecastModel);
-            _repository.SaveChanges();
+            await _repository.CreateForecastAsync(forecastModel);
+            await _repository.SaveChangesAsync();
 
             var forecastReadtDto = _mapper.Map<WeatherForecastsReadDtoV4>(forecastModel);
 
@@ -112,9 +113,9 @@ namespace WeatherApi.Controllers
         [ProducesResponseType( 204 )]
         [ProducesResponseType( 400 )]
         [ProducesResponseType( 404 )]
-        public ActionResult UpdateForecast(int id, WeatherForecastsUpdateDto forecastsUpdateDto)
+        public async Task<IActionResult> UpdateForecast(int id, WeatherForecastsUpdateDto forecastsUpdateDto)
         {
-            var forecastModelFromRepo = _repository.GetForecastById(id);
+            var forecastModelFromRepo = await _repository.GetForecastByIdAsync(id);
 
             if (forecastModelFromRepo == null)
             {
@@ -128,7 +129,7 @@ namespace WeatherApi.Controllers
             // keep this in in case you want to change the implementation in future i.e ORM or underlying database
             _repository.UpdateForecast (forecastModelFromRepo);
 
-            _repository.SaveChanges();
+            await _repository.SaveChangesAsync();
 
             return NoContent();
 
@@ -149,9 +150,9 @@ namespace WeatherApi.Controllers
         [ProducesResponseType( 204 )]
         [ProducesResponseType( 400 )]
         [ProducesResponseType( 404 )]
-        public ActionResult PartialForecastUpdate(int id, JsonPatchDocument<WeatherForecastsUpdateDto> patchDoc)
+        public async Task<IActionResult> PartialForecastUpdate(int id, JsonPatchDocument<WeatherForecastsUpdateDto> patchDoc)
         {
-            var forecastModelFromRepo = _repository.GetForecastById(id);
+            var forecastModelFromRepo = await _repository.GetForecastByIdAsync(id);
 
             if (forecastModelFromRepo == null)
             {
@@ -173,7 +174,7 @@ namespace WeatherApi.Controllers
             // keep this in in case you want to change the implementation in future i.e ORM or underlying database
             _repository.UpdateForecast (forecastModelFromRepo);
 
-            _repository.SaveChanges();
+            await _repository.SaveChangesAsync();
 
             return NoContent();
         }
@@ -193,9 +194,9 @@ namespace WeatherApi.Controllers
         [ProducesResponseType( 204 )]
         [ProducesResponseType( 400 )]
         [ProducesResponseType( 404 )]
-        public ActionResult DeleteCommand(int id)
+        public async Task<IActionResult> DeleteCommand(int id)
         {
-            var forecastModelFromRepo = _repository.GetForecastById(id);
+            var forecastModelFromRepo = await _repository.GetForecastByIdAsync(id);
 
             if (forecastModelFromRepo == null)
             {
@@ -203,7 +204,7 @@ namespace WeatherApi.Controllers
             }
 
             _repository.DeleteForecast(forecastModelFromRepo);
-            _repository.SaveChanges();
+            await _repository.SaveChangesAsync();
             
             return NoContent();
 
