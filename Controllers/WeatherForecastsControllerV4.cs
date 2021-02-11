@@ -11,15 +11,14 @@ namespace WeatherApi.Controllers
 {
     [ApiController]
     [Route("api/v{version:apiVersion}/forecasts")]
-    [ApiVersion("1.0", Deprecated = true)]
-    [ApiVersion("2.0")]
-    public class WeatherForecastsController : ControllerBase
+    [ApiVersion("4.0")]
+    public class WeatherForecastsControllerV4 : ControllerBase
     {
         private readonly ILogger<WeatherForecastsController> _logger;
         private readonly IWeatherRepo _repository;
         private IMapper _mapper;        
 
-        public WeatherForecastsController(ILogger<WeatherForecastsController> logger, IWeatherRepo repository, IMapper mapper)
+        public WeatherForecastsControllerV4(ILogger<WeatherForecastsController> logger, IWeatherRepo repository, IMapper mapper)
         {
             _logger = logger;
             _repository = repository;
@@ -27,26 +26,25 @@ namespace WeatherApi.Controllers
         }
 
         /// <summary>
-        /// Gets a list of all forecasts (V1).
+        /// Gets a list of all forecasts (V4).
         /// GET api/forecasts
         ///
         /// https://tools.ietf.org/html/rfc2616#section-9.3
         /// </summary>
         /// <returns>All forecasts.</returns>
         /// <response code="200">Forecasts successfully retrieved.</response>
-        [MapToApiVersion("1.0")]
         [HttpGet(Name = nameof(GetAllForecasts))]
         [Produces( "application/json" )]
-        [ProducesResponseType( typeof( IEnumerable<WeatherForecastsReadDto> ), 200 )]
-        public ActionResult <IEnumerable<WeatherForecastsReadDto>> GetAllForecasts()
+        [ProducesResponseType( typeof( IEnumerable<WeatherForecastsReadDtoV4> ), 200 )]
+        public ActionResult <IEnumerable<WeatherForecastsReadDtoV4>> GetAllForecasts()
         {
             var forecastItems = _repository.GetAllForecasts();
 
-            return Ok(_mapper.Map<IEnumerable<WeatherForecastsReadDto>>(forecastItems));
+            return Ok(_mapper.Map<IEnumerable<WeatherForecastsReadDtoV4>>(forecastItems));
         }
 
         /// <summary>
-        /// Gets a single forecast (V1).
+        /// Gets a single forecast (V4).
         /// GET api/forecasts/{id}
         ///
         /// https://tools.ietf.org/html/rfc2616#section-9.3
@@ -56,19 +54,18 @@ namespace WeatherApi.Controllers
         /// <response code="200">The forecast was successfully retrieved.</response>
         /// <response code="400">The input value is invalid.</response>
         /// <response code="404">The forecast does not exist.</response>
-        [MapToApiVersion("1.0")]
         [HttpGet("{id}", Name = nameof(GetForecastById))]
         [Produces( "application/json" )]
-        [ProducesResponseType( typeof( WeatherForecastsReadDto ), 200 )]
+        [ProducesResponseType( typeof( WeatherForecastsReadDtoV4 ), 200 )]
         [ProducesResponseType( 400 )]
         [ProducesResponseType( 404 )]
-        public ActionResult <WeatherForecastsReadDto> GetForecastById(int id)
+        public ActionResult <WeatherForecastsReadDtoV4> GetForecastById(int id)
         {
             var forecastItems = _repository.GetForecastById(id);
 
             if (forecastItems != null)
             {
-                return Ok(_mapper.Map<WeatherForecastsReadDto>(forecastItems));
+                return Ok(_mapper.Map<WeatherForecastsReadDtoV4>(forecastItems));
             }
 
             return NotFound();
@@ -76,7 +73,7 @@ namespace WeatherApi.Controllers
         }
 
         /// <summary>
-        /// Add a new forecast (V1 and V2).
+        /// Add a new forecast (V3 and V4).
         /// POST api/forecasts
         ///
         /// https://tools.ietf.org/html/rfc2616#section-9.5
@@ -85,25 +82,23 @@ namespace WeatherApi.Controllers
         /// <returns>The created order route in the header.</returns>
         /// <response code="201">The forecast was successfully placed.</response>
         /// <response code="400">The forecast is invalid.</response>
-        [MapToApiVersion("1.0")]
-        [MapToApiVersion("2.0")]
         [HttpPost]
         [ProducesResponseType( typeof( WeatherForecastCreateDto ), 201 )]
         [ProducesResponseType( 400 )]
-        public ActionResult<WeatherForecastsReadDto> CreateForecast(WeatherForecastCreateDto forecastCreateDto)
+        public ActionResult<WeatherForecastsReadDtoV4> CreateForecast(WeatherForecastCreateDto forecastCreateDto)
         {
             var forecastModel = _mapper.Map<WeatherForecast>(forecastCreateDto);
 
             _repository.CreateForecast(forecastModel);
             _repository.SaveChanges();
 
-            var forecastReadtDto = _mapper.Map<WeatherForecastsReadDto>(forecastModel);
+            var forecastReadtDto = _mapper.Map<WeatherForecastsReadDtoV4>(forecastModel);
 
             return CreatedAtRoute(nameof(GetForecastById), new {Id = forecastReadtDto.Id}, forecastReadtDto);
         }
 
         /// <summary>
-        /// Fully replace an existing forecast (V1 and V2).
+        /// Fully replace an existing forecast (V4 - same as V3).
         /// PUT api/forecasts/{id}
         ///
         /// https://tools.ietf.org/html/rfc2616#section-9.6
@@ -113,8 +108,6 @@ namespace WeatherApi.Controllers
         /// <response code="204">The forecast was successfully replaced.</response>
         /// <response code="400">The forecast passed in the body is invalid.</response>
         /// <response code="404">The forecast to be replaced does not exist.</response>
-        [MapToApiVersion("1.0")]
-        [MapToApiVersion("2.0")]
         [HttpPut("{id}")]
         [ProducesResponseType( 204 )]
         [ProducesResponseType( 400 )]
@@ -142,7 +135,7 @@ namespace WeatherApi.Controllers
         }
 
         /// <summary>
-        /// Update fields of an existing forecast (V1 and V2).
+        /// Update fields of an existing forecast (V4 - same as V3).
         /// PATCH api/forecasts/{id}
         ///
         /// https://tools.ietf.org/html/rfc2068#section-19.6.1.1
@@ -152,8 +145,6 @@ namespace WeatherApi.Controllers
         /// <response code="204">The forecast was successfully updated.</response>
         /// <response code="400">The forecast passed in the body is invalid.</response>
         /// <response code="404">The forecast to be updated does not exist.</response>
-        [MapToApiVersion("1.0")]
-        [MapToApiVersion("2.0")]
         [HttpPatch("{id}")]
         [ProducesResponseType( 204 )]
         [ProducesResponseType( 400 )]
@@ -188,7 +179,7 @@ namespace WeatherApi.Controllers
         }
 
         /// <summary>
-        /// Deletes a forecast (V1 and V2).
+        /// Deletes a forecast (V4 - same as V3).
         /// DELETE api/forecasts/{id}
         ///
         /// https://tools.ietf.org/html/rfc7231#section-4.3.5
@@ -198,8 +189,6 @@ namespace WeatherApi.Controllers
         /// <response code="204">The forecast was successfully deleted.</response>
         /// <response code="400">The input value is invalid.</response>
         /// <response code="404">The forecast does not exist.</response>
-        [MapToApiVersion("1.0")]
-        [MapToApiVersion("2.0")]
         [HttpDelete("{id}")]
         [ProducesResponseType( 204 )]
         [ProducesResponseType( 400 )]
@@ -218,55 +207,6 @@ namespace WeatherApi.Controllers
             
             return NoContent();
 
-        }
-
-        /// <summary>
-        /// Gets a list of all forecasts (V2).
-        /// GET api/forecasts
-        ///
-        /// https://tools.ietf.org/html/rfc2616#section-9.3
-        /// </summary>
-        /// <returns>All forecasts.</returns>
-        /// <response code="200">Forecasts successfully retrieved.</response>
-        [MapToApiVersion("2.0")]
-        [HttpGet(Name = nameof(GetAllForecastsV2))]
-        [Produces( "application/json" )]
-        [ProducesResponseType( typeof( IEnumerable<WeatherForecastsReadDtoV2> ), 200 )]
-        public ActionResult <IEnumerable<WeatherForecastsReadDtoV2>> GetAllForecastsV2()
-        {
-            var forecastItems = _repository.GetAllForecasts();
-
-            return Ok(_mapper.Map<IEnumerable<WeatherForecastsReadDtoV2>>(forecastItems));
-        }
-
-        /// <summary>
-        /// Gets a single forecast (V2).
-        /// GET api/forecasts/{id}
-        ///
-        /// https://tools.ietf.org/html/rfc2616#section-9.3
-        /// </summary>
-        /// <param name="id">The requested forecast identifier.</param>
-        /// <returns>The requested forecast.</returns>
-        /// <response code="200">The forecast was successfully retrieved.</response>
-        /// <response code="400">The input value is invalid.</response>
-        /// <response code="404">The forecast does not exist.</response>
-        [MapToApiVersion("2.0")]
-        [HttpGet("{id}", Name = nameof(GetForecastByIdV2))]
-        [Produces( "application/json" )]
-        [ProducesResponseType( typeof( WeatherForecastsReadDtoV2 ), 200 )]
-        [ProducesResponseType( 400 )]
-        [ProducesResponseType( 404 )]
-        public ActionResult <WeatherForecastsReadDtoV2> GetForecastByIdV2(int id)
-        {
-            var forecastItems = _repository.GetForecastById(id);
-
-            if (forecastItems != null)
-            {
-                return Ok(_mapper.Map<WeatherForecastsReadDtoV2>(forecastItems));
-            }
-
-            return NotFound();
-            
         }
 
     }
