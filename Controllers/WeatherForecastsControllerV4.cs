@@ -41,6 +41,8 @@ namespace WeatherApi.Controllers
         {
             var forecastItems = await _repository.GetAllForecastsAsync();
 
+            _logger.LogInformation("Within {method}.", "GetAllForecasts");
+
             return Ok(_mapper.Map<IEnumerable<WeatherForecastsReadDtoV4>>(forecastItems));
         }
 

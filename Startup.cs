@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Serialization;
+using Serilog;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using WeatherApi.Data;
 using WeatherApi.Swagger;
@@ -107,9 +108,6 @@ namespace WeatherApi
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                // app.UseSwagger();
-                // app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WeatherApi v1"));
-
                 app.UseSwagger();
                 app.UseSwaggerUI(
                     options =>
@@ -123,6 +121,10 @@ namespace WeatherApi
             }
 
             app.UseHttpsRedirection();
+
+            // This will make sure each HTTP request is logged (https://jkdev.me/asp-net-core-serilog/).
+            app.UseSerilogRequestLogging();
+
             app.UseRouting();
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>

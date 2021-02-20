@@ -115,3 +115,26 @@ The code makes syncronous calls which is fine for UI based APIs I reckon. For mi
 
 * dotnet add package Microsoft.AspNetCore.Mvc.Versioning
 * dotnet add package Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer
+
+## Logging (SeriLog)
+* dotnet add package Serilog.AspNetCore
+* dotnet add package Serilog.Enrichers.Environment
+* dotnet add package Serilog.Enrichers.Thread
+* dotnet add package Serilog.Enrichers.Span
+* dotnet add package Serilog.Sinks.Console
+* dotnet add package Serilog.Sinks.Seq
+
+Serilog.Enrichers.Span was included based on https://github.com/serilog/serilog-aspnetcore/issues/207.  This is needed for Core 5.0
+
+### Logging - Optional Sinks (SeriLog)
+* dotnet add package Serilog.Sinks.File
+* dotnet add package Serilog.Sinks.ApplicationInsights
+* dotnet add package Serilog.Sinks.PeriodicBatching
+
+
+## Logging (Seq)
+* https://datalust.co/download
+* [Manage Docker as a non-root user](https://docs.docker.com/engine/install/linux-postinstall/) - had to be done otherwise the browser was unable to connect to Seq via browser. You'd end up with an eventual timeout.
+
+docker pull datalust/seq
+docker run -d --restart unless-stopped --name seq -e ACCEPT_EULA=Y -v ~/Documents/code/WeatherApi/Logs:/data -p 8081:80 datalust/seq:latest
